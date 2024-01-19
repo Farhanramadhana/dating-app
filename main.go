@@ -40,17 +40,17 @@ func main() {
 	// repository
 	authRepository := authRepository.NewAuthRepository(db)
 	userRepository := userRepository.NewUserRepository(db)
-	swipeRepository := swipeRepository.NewSwipeRepository(db, redis)
+	swipeRepository := swipeRepository.NewSwipeRepository(db)
 
 	// usecase
 	authUsecase := authUsecase.NewAuthUsecase(authRepository)
 	userUsecase := userUsecase.NewUserUsecase(userRepository)
-	swipeUsecase := swipeUsecase.NewSwipeUsecase(swipeRepository)
+	swipeUsecase := swipeUsecase.NewSwipeUsecase(swipeRepository, redis)
 
 	// handler
 	authHandler.NewAuthHandler(r, authUsecase)
 	userHandler.NewUserHandler(r, userUsecase)
-	swipeHandler.NewSwipeHandler(r, swipeUsecase)
+	swipeHandler.NewSwipeHandler(r, swipeUsecase, userUsecase)
 
 	// helath check
 	r.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
