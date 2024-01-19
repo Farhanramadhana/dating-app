@@ -20,3 +20,26 @@ type UserImage struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type User struct {
+	ID        int
+	Email     string
+	FirstName string
+	LastName  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type UserExternalLogin struct {
+	ID        int
+	UserID    int
+	LoginType string
+}
+
+type UserPassword struct {
+	ID           int
+	UserID       int
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
