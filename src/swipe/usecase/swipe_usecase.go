@@ -8,7 +8,7 @@ type SwipeUsecase struct {
 	swipeRepository swipe.SwipeRepositoryInterface
 }
 
-func NewMatcherUsecase(
+func NewSwipeUsecase(
 	swipeRepository swipe.SwipeRepositoryInterface,
 ) swipe.SwipeUsecaseInterface {
 	return &SwipeUsecase{swipeRepository}
