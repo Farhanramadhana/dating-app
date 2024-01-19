@@ -25,8 +25,11 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("starting the server %s on port %s \n", time.Now().Format(constant.YYYY_MM_DD_HH_MM_SS), os.Getenv("port"))
 	db, err := app.InitDatabase()
+	if err != nil {
+		errMessage := fmt.Sprintf("error running database: %s ", err)
+		panic(errMessage)
+	}
 	r := mux.NewRouter()
 
 	// repository
@@ -46,11 +49,12 @@ func main() {
 	})).Methods("GET")
 
 	userHandler.NewUserHandler(r, userUsecase)
-
+	
+	fmt.Printf("starting the server %s on port %s \n", time.Now().Format(constant.YYYY_MM_DD_HH_MM_SS), os.Getenv("port"))
+	
 	http.Handle("/", r)
 	addr := fmt.Sprintf(":%s", os.Getenv("port"))
 	err = http.ListenAndServe(addr, nil)
-
 	if err != nil {
 		errMessage := fmt.Sprintf("server error %s ", err)
 		panic(errMessage)
