@@ -52,3 +52,7 @@ func (u *UserUsecase) AddUserImage(request dto.UserImage) error {
 func (u *UserUsecase) GetUserProfileByUserID(userID int) (database.UserProfile, error) {
 	return u.userRepository.GetUserProfileByUserID(userID)
 }
+
+func (u *UserUsecase) GetUserProfilesNotIn(userIDs []int, limit int) ([]database.UserProfile, error) {
+	return u.userRepository.GetUserProfilesNotIn(userIDs, limit)
+}

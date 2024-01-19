@@ -35,3 +35,10 @@ func (r *UserRepository) GetUserProfileByUserID(userID int) (database.UserProfil
 	tx := r.db.Where("user_id = ?", userID).Find(&userProfile)
 	return userProfile, tx.Error
 }
+
+func (r *UserRepository) GetUserProfilesNotIn(userIDs []int, limit int) ([]database.UserProfile, error) {
+	var userProfiles []database.UserProfile
+	tx := r.db.Not(map[string]interface{}{"user_id": userIDs}).Limit(limit).Find(&userProfiles)
+
+	return userProfiles, tx.Error
+}
