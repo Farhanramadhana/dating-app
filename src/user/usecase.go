@@ -1,8 +1,12 @@
 package user
 
-import "dating-app/model/dto"
+import (
+	"dating-app/model/database"
+	"dating-app/model/dto"
+)
 
 type UserUsecaseInterface interface {
 	UpsertUserProfile(dto.UserProfile) error
 	AddUserImage(dto.UserImage) error
+	GetUserProfileByUserID(userID int) (database.UserProfile, error)
 }

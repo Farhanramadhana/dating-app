@@ -48,3 +48,7 @@ func (u *UserUsecase) AddUserImage(request dto.UserImage) error {
 	err := u.userRepository.AddUserImage(userImage)
 	return err
 }
+
+func (u *UserUsecase) GetUserProfileByUserID(userID int) (database.UserProfile, error) {
+	return u.userRepository.GetUserProfileByUserID(userID)
+}

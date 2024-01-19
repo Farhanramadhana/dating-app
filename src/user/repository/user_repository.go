@@ -29,3 +29,9 @@ func (r *UserRepository) AddUserImage(userImage database.UserImage) error {
 	tx := r.db.Create(&userImage)
 	return tx.Error
 }
+
+func (r *UserRepository) GetUserProfileByUserID(userID int) (database.UserProfile, error) {
+	var userProfile database.UserProfile
+	tx := r.db.Where("user_id = ?", userID).Find(&userProfile)
+	return userProfile, tx.Error
+}
