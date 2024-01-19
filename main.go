@@ -4,6 +4,9 @@ import (
 	"dating-app/app"
 	"dating-app/app/utils"
 	"dating-app/model/constant"
+	authHandler "dating-app/src/auth/delivery"
+	authRepository "dating-app/src/auth/repository"
+	authUsecase "dating-app/src/auth/usecase"
 	userHandler "dating-app/src/user/delivery"
 	userRepository "dating-app/src/user/repository"
 	userUsecase "dating-app/src/user/usecase"
@@ -26,8 +29,16 @@ func main() {
 	db, err := app.InitDatabase()
 	r := mux.NewRouter()
 
+	// repository
+	authRepository := authRepository.NewAuthRepository(db)
 	userRepository := userRepository.NewUserRepository(db)
+
+	// usecase
+	authUsecase := authUsecase.NewAuthUsecase(authRepository)
 	userUsecase := userUsecase.NewUserUsecase(userRepository)
+
+	// handler
+	authHandler.NewAuthHandler(r, authUsecase)
 
 	// Example protected route
 	r.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

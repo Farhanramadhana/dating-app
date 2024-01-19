@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"dating-app/app/middleware"
+
 	"github.com/gorilla/mux"
 )
 
@@ -17,11 +19,8 @@ type UserHandler struct {
 func NewUserHandler(r *mux.Router, userUsecase user.UserUsecaseInterface) {
 	handler := UserHandler{userUsecase}
 
-	// Attach authentication middleware to all routes
-	r.Use(AuthenticateMiddleware)
-
-	r.HandleFunc("/user/profile", handler.UpsertUserProfile).Methods("POST")
-	r.HandleFunc("/user/image", handler.AddUserImage).Methods("POST")
+	r.Handle("/user/profile", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.UpsertUserProfile))).Methods("POST")
+	r.Handle("/user/image", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.AddUserImage))).Methods("POST")
 }
 
 func (h *UserHandler) UpsertUserProfile(w http.ResponseWriter, r *http.Request) {
