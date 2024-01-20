@@ -69,10 +69,12 @@ func (u *SwipeUsecase) GetProfileAppeared(userID int) []int {
 	var profileIDs []int
 	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.USER_PROFILE_APPEARED, userID))
 
-	profiles := strings.Split(profilesStr, ",")
-	for _, v := range profiles {
-		profileID, _ := strconv.Atoi(v)
-		profileIDs = append(profileIDs, profileID)
+	if profilesStr != "" {
+		profiles := strings.Split(profilesStr, ",")
+		for _, v := range profiles {
+			profileID, _ := strconv.Atoi(v)
+			profileIDs = append(profileIDs, profileID)
+		}
 	}
 
 	return profileIDs
@@ -96,4 +98,12 @@ func (u *SwipeUsecase) UpsertSwipeMatches(firstUserId int, secondUserId int, fir
 
 func (u *SwipeUsecase) GetSwipeMatches(firstUserId int, secondUserId int) (database.SwipeMatches, error) {
 	return u.swipeRepository.GetSwipeMatches(firstUserId, secondUserId)
+}
+
+func (u *SwipeUsecase) GetAsFirstUserLikeProfiles(userID int) ([]database.SwipeMatches, error) {
+	return u.swipeRepository.GetAsFirstUserLikeProfiles(userID)
+}
+
+func (u *SwipeUsecase) GetAsSecondUserLikeProfiles(userID int) ([]database.SwipeMatches, error) {
+	return u.swipeRepository.GetAsSecondUserLikeProfiles(userID)
 }

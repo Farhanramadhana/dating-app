@@ -53,9 +53,24 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 		limit = constant.MAX_SWIPE - count
 	}
 
-	// load other user profiles up to 10, and set to redis
+	// load other user profiles up to 10 except visited and like profile
 	userProfilesID := h.swipeUsecase.GetProfileAppeared(userID)
 	userProfilesID = append(userProfilesID, userID)
+
+	firstLikeProfiles, _ := h.swipeUsecase.GetAsFirstUserLikeProfiles(userID)
+	if len(firstLikeProfiles) > 0 {
+		for _, v := range firstLikeProfiles {
+			userProfilesID = append(userProfilesID, v.SecondUserID)
+		}
+	}
+
+	secondLikeProfiles, _ := h.swipeUsecase.GetAsSecondUserLikeProfiles(userID)
+	if len(secondLikeProfiles) > 0 {
+		for _, v := range secondLikeProfiles {
+			userProfilesID = append(userProfilesID, v.FirstUserID)
+		}
+	}
+
 	userProfiles, _ := h.userUsecase.GetUserProfilesNotIn(userProfilesID, limit)
 	var response []dto.UserProfile
 	for _, v := range userProfiles {
@@ -87,12 +102,6 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 	swipeAction := r.URL.Query().Get("action")
 	otherUserID, _ := strconv.Atoi(r.URL.Query().Get("other_user_id"))
 
-	var isLike *bool
-	if swipeAction == constant.SWIPE_LIKE {
-		like := true
-		isLike = &like
-	}
-
 	// add counter if user !premium
 	if !userProfile.IsPremiumUser {
 		count := h.swipeUsecase.CountUserSwipe(userID)
@@ -114,13 +123,21 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 	// get from database matcher as second person
 	swipe, err := h.swipeUsecase.GetSwipeMatches(otherUserID, userID)
 
+	var isLike *bool
+	if swipeAction == constant.SWIPE_LIKE {
+		like := true
+		isLike = &like
+	}
+
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	} else if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		// insert new data
-		err := h.swipeUsecase.UpsertSwipeMatches(userID, otherUserID, isLike, nil, 0)
-		log.Println("error save swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+		// insert new data, swipe == skip not save to database, profile will appear on the next time
+		if swipeAction == constant.SWIPE_LIKE {
+			err := h.swipeUsecase.UpsertSwipeMatches(userID, otherUserID, isLike, nil, 0)
+			log.Println("error save swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+		}
 	} else {
 		// data swipe exist, update
 		err := h.swipeUsecase.UpsertSwipeMatches(swipe.FirstUserID, swipe.SecondUserID, swipe.IsFirstUserLike, isLike, swipe.ID)

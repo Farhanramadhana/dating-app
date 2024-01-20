@@ -31,3 +31,17 @@ func (r *SwipeRepository) GetSwipeMatches(firstUserId int, secondUserId int) (da
 
 	return swipeMatches, tx.Error
 }
+
+func (r *SwipeRepository) GetAsFirstUserLikeProfiles(userID int) ([]database.SwipeMatches, error) {
+	var data []database.SwipeMatches
+	tx := r.db.Where("first_user_id = ? and is_first_user_like = ?", userID, true).Find(&data)
+
+	return data, tx.Error
+}
+
+func (r *SwipeRepository) GetAsSecondUserLikeProfiles(userID int) ([]database.SwipeMatches, error) {
+	var data []database.SwipeMatches
+	tx := r.db.Where("second_user_id = ? and is_second_user_like = ?", userID, true).Find(&data)
+
+	return data, tx.Error
+}

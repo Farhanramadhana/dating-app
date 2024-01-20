@@ -11,4 +11,6 @@ type SwipeUsecaseInterface interface {
 
 	UpsertSwipeMatches(firstUserId int, secondUserId int, firstUserLike *bool, secondUserLike *bool, swipeID int) error
 	GetSwipeMatches(firstUserId int, secondUserId int) (database.SwipeMatches, error)
+	GetAsFirstUserLikeProfiles(userID int) ([]database.SwipeMatches, error)
+	GetAsSecondUserLikeProfiles(userID int) ([]database.SwipeMatches, error)
 }
