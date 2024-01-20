@@ -92,12 +92,3 @@ func generateToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
 }
-
-func verifyToken(tokenString string) bool {
-	var jwtSecret = []byte(os.Getenv("jwt_secret_key"))
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
-	})
-
-	return err == nil && token.Valid
-}

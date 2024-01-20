@@ -28,6 +28,7 @@ func NewSwipeHandler(r *mux.Router, swipeUsecase swipe.SwipeUsecaseInterface, us
 
 	r.Handle("/show", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Show))).Methods("GET")
 	r.Handle("/swipe", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Swipe))).Methods("POST")
+
 }
 
 func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
@@ -111,13 +112,13 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err := h.swipeUsecase.AddUserSwipe(userID)
-		log.Println("user %v error add counter swipe for user %v: %s", userID, otherUserID, err)
+		log.Printf("user %v error add counter swipe for user %v: %s \n", userID, otherUserID, err)
 	}
 
 	// add appeared profiles into redis
 	err = h.swipeUsecase.AddProfileAppeared(userID, otherUserID)
 	if err != nil {
-		log.Println("user %v error add profile appeared for user %v: %s", userID, otherUserID, err)
+		log.Printf("user %v error add profile appeared for user %v: %s \n", userID, otherUserID, err)
 	}
 
 	// get from database matcher as second person
@@ -136,12 +137,12 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 		// insert new data, swipe == skip not save to database, profile will appear on the next time
 		if swipeAction == constant.SWIPE_LIKE {
 			err := h.swipeUsecase.UpsertSwipeMatches(userID, otherUserID, isLike, nil, 0)
-			log.Println("error save swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+			log.Printf("error save swipe matches %v %s %v: %s \n", userID, swipeAction, otherUserID, err)
 		}
 	} else {
 		// data swipe exist, update
 		err := h.swipeUsecase.UpsertSwipeMatches(swipe.FirstUserID, swipe.SecondUserID, swipe.IsFirstUserLike, isLike, swipe.ID)
-		log.Println("error update swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+		log.Printf("error update swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"status": "success"})
