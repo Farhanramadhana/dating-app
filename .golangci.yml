@@ -14,9 +14,6 @@ linters-disable:
 linters-settings:
   govet:
     check-shadowing: true
-  revive:
-    enable: true
-    config: .revive.toml
   staticcheck:
     checks:
       - SA1004
