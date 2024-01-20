@@ -4,7 +4,7 @@ import "time"
 
 type UserProfile struct {
 	ID               int
-	UserID           string
+	UserID           int
 	Gender           string
 	Birthdate        time.Time
 	GenderPreference string

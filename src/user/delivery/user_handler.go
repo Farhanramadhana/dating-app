@@ -30,7 +30,7 @@ func (h *UserHandler) UpsertUserProfile(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	userID := r.Context().Value("user_id").(string)
+	userID := r.Context().Value("user_id").(int)
 	userDto.UserID = userID
 	err := h.userUsecase.UpsertUserProfile(userDto)
 	if err != nil {

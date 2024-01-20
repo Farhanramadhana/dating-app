@@ -1,7 +1,7 @@
 package dto
 
 type UserProfile struct {
-	UserID           string `json:"-`
+	UserID           int    `json:"-`
 	Gender           string `json:"gender"`
 	Birthdate        string `json:"birthdate"`
 	GenderPreference string `json:"gender_preference"`
