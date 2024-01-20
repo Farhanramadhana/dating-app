@@ -11,10 +11,10 @@ import (
 )
 
 type AuthHandler struct {
-	authUsecase auth.AuthUsecaseInterface
+	authUsecase auth.UsecaseInterface
 }
 
-func NewAuthHandler(r *mux.Router, authUsecase auth.AuthUsecaseInterface) {
+func NewAuthHandler(r *mux.Router, authUsecase auth.UsecaseInterface) {
 	handler := AuthHandler{authUsecase}
 	r.HandleFunc("/signup", handler.SignUpHandler).Methods("POST")
 	r.HandleFunc("/signin", handler.SignInHandler).Methods("POST")
@@ -33,7 +33,7 @@ func (h *AuthHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, map[string]string{"status": "success", "message": "created user successfull"})
+	utils.RespondWithJSON(w, http.StatusCreated, map[string]string{"status": "success", "message": "created user successful"})
 }
 
 func (h *AuthHandler) SignInHandler(w http.ResponseWriter, r *http.Request) {

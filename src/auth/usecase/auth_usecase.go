@@ -14,12 +14,12 @@ import (
 )
 
 type AuthUsecase struct {
-	authRepository auth.AuthRepositoryInterface
+	authRepository auth.RepositoryInterface
 }
 
 func NewAuthUsecase(
-	authRepository auth.AuthRepositoryInterface,
-) auth.AuthUsecaseInterface {
+	authRepository auth.RepositoryInterface,
+) auth.UsecaseInterface {
 	return &AuthUsecase{authRepository}
 }
 

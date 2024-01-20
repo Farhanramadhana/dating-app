@@ -13,14 +13,14 @@ import (
 )
 
 type SwipeUsecase struct {
-	swipeRepository swipe.SwipeRepositoryInterface
+	swipeRepository swipe.RepositoryInterface
 	redis           app.Redis
 }
 
 func NewSwipeUsecase(
-	swipeRepository swipe.SwipeRepositoryInterface,
+	swipeRepository swipe.RepositoryInterface,
 	redis app.Redis,
-) swipe.SwipeUsecaseInterface {
+) swipe.UsecaseInterface {
 	return &SwipeUsecase{swipeRepository, redis}
 }
 
@@ -33,23 +33,23 @@ func (u *SwipeUsecase) Swipe(userID int) error {
 }
 
 func (u *SwipeUsecase) CountUserSwipe(userID int) int {
-	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.USER_SWIPE_KEY, userID))
+	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID))
 	count, _ := strconv.Atoi(countStr)
 
 	return count
 }
 
 func (u *SwipeUsecase) AddUserSwipe(userID int) error {
-	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.USER_SWIPE_KEY, userID))
+	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID))
 	count, _ := strconv.Atoi(countStr)
 	count++
 
-	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.USER_SWIPE_KEY, userID), count)
+	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID), count)
 	return err
 }
 
 func (u *SwipeUsecase) AddProfileAppeared(userID int, otherUserID int) error {
-	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.USER_PROFILE_APPEARED, userID))
+	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID))
 
 	var profileIDs []string
 	if profilesStr != "" {
@@ -60,14 +60,14 @@ func (u *SwipeUsecase) AddProfileAppeared(userID int, otherUserID int) error {
 
 	value := strings.Join(profileIDs, ",")
 
-	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.USER_PROFILE_APPEARED, userID), value)
+	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID), value)
 
 	return err
 }
 
 func (u *SwipeUsecase) GetProfileAppeared(userID int) []int {
 	var profileIDs []int
-	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.USER_PROFILE_APPEARED, userID))
+	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID))
 
 	if profilesStr != "" {
 		profiles := strings.Split(profilesStr, ",")
@@ -80,10 +80,10 @@ func (u *SwipeUsecase) GetProfileAppeared(userID int) []int {
 	return profileIDs
 }
 
-func (u *SwipeUsecase) UpsertSwipeMatches(firstUserId int, secondUserId int, firstUserLike *bool, secondUserLike *bool, swipeID int) error {
+func (u *SwipeUsecase) UpsertSwipeMatches(firstUserID int, secondUserID int, firstUserLike *bool, secondUserLike *bool, swipeID int) error {
 	data := database.SwipeMatches{
-		FirstUserID:      firstUserId,
-		SecondUserID:     secondUserId,
+		FirstUserID:      firstUserID,
+		SecondUserID:     secondUserID,
 		IsFirstUserLike:  firstUserLike,
 		IsSecondUserLike: secondUserLike,
 		CreatedAt:        time.Now(),
@@ -96,8 +96,8 @@ func (u *SwipeUsecase) UpsertSwipeMatches(firstUserId int, secondUserId int, fir
 	return u.swipeRepository.UpsertSwipeMatches(data)
 }
 
-func (u *SwipeUsecase) GetSwipeMatches(firstUserId int, secondUserId int) (database.SwipeMatches, error) {
-	return u.swipeRepository.GetSwipeMatches(firstUserId, secondUserId)
+func (u *SwipeUsecase) GetSwipeMatches(firstUserID int, secondUserID int) (database.SwipeMatches, error) {
+	return u.swipeRepository.GetSwipeMatches(firstUserID, secondUserID)
 }
 
 func (u *SwipeUsecase) GetAsFirstUserLikeProfiles(userID int) ([]database.SwipeMatches, error) {

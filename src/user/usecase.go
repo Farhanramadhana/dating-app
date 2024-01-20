@@ -5,7 +5,7 @@ import (
 	"dating-app/model/dto"
 )
 
-type UserUsecaseInterface interface {
+type UsecaseInterface interface {
 	UpsertUserProfile(dto.UserProfile) error
 	AddUserImage(dto.UserImage) error
 	GetUserProfileByUserID(userID int) (database.UserProfile, error)

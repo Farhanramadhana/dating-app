@@ -12,7 +12,7 @@ type SwipeRepository struct {
 	db *gorm.DB
 }
 
-func NewSwipeRepository(db *gorm.DB) swipe.SwipeRepositoryInterface {
+func NewSwipeRepository(db *gorm.DB) swipe.RepositoryInterface {
 	return &SwipeRepository{db}
 }
 
@@ -25,9 +25,9 @@ func (r *SwipeRepository) UpsertSwipeMatches(swipeMatches database.SwipeMatches)
 	return tx.Error
 }
 
-func (r *SwipeRepository) GetSwipeMatches(firstUserId int, secondUserId int) (database.SwipeMatches, error) {
+func (r *SwipeRepository) GetSwipeMatches(firstUserID int, secondUserID int) (database.SwipeMatches, error) {
 	var swipeMatches database.SwipeMatches
-	tx := r.db.Where("first_user_id = ? and second_user_id = ?", firstUserId, secondUserId).First(&swipeMatches)
+	tx := r.db.Where("first_user_id = ? and second_user_id = ?", firstUserID, secondUserID).First(&swipeMatches)
 
 	return swipeMatches, tx.Error
 }

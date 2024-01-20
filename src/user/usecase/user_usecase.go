@@ -10,18 +10,18 @@ import (
 )
 
 type UserUsecase struct {
-	userRepository user.UserRepositoryInterface
+	userRepository user.RepositoryInterface
 }
 
 func NewUserUsecase(
-	userRepository user.UserRepositoryInterface,
-) user.UserUsecaseInterface {
+	userRepository user.RepositoryInterface,
+) user.UsecaseInterface {
 	return &UserUsecase{userRepository}
 }
 
 func (u *UserUsecase) UpsertUserProfile(request dto.UserProfile) error {
 	fmt.Println(request.Birthdate)
-	birthdate, _ := time.Parse(constant.YYYY_MM_DD, request.Birthdate)
+	birthdate, _ := time.Parse(constant.YYYYMMDD, request.Birthdate)
 
 	userProfile := database.UserProfile{
 		UserID:           request.UserID,

@@ -57,7 +57,7 @@ func main() {
 		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "hello world"})
 	})).Methods("GET")
 
-	fmt.Printf("starting the server %s on port %s \n", time.Now().Format(constant.YYYY_MM_DD_HH_MM_SS), os.Getenv("app_port"))
+	fmt.Printf("starting the server %s on port %s \n", time.Now().Format(constant.YYYYMMDDHHMMSS), os.Getenv("app_port"))
 
 	http.Handle("/", r)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("app_port")), nil)

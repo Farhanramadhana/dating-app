@@ -3,6 +3,7 @@ package delivery
 import (
 	"dating-app/app/middleware"
 	"dating-app/app/utils"
+
 	"dating-app/model/constant"
 	"dating-app/model/dto"
 	"errors"
@@ -19,11 +20,11 @@ import (
 )
 
 type SwipeHandler struct {
-	swipeUsecase swipe.SwipeUsecaseInterface
-	userUsecase  user.UserUsecaseInterface
+	swipeUsecase swipe.UsecaseInterface
+	userUsecase  user.UsecaseInterface
 }
 
-func NewSwipeHandler(r *mux.Router, swipeUsecase swipe.SwipeUsecaseInterface, userUsecase user.UserUsecaseInterface) {
+func NewSwipeHandler(r *mux.Router, swipeUsecase swipe.UsecaseInterface, userUsecase user.UsecaseInterface) {
 	handler := SwipeHandler{swipeUsecase, userUsecase}
 
 	r.Handle("/show", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Show))).Methods("GET")
@@ -32,8 +33,8 @@ func NewSwipeHandler(r *mux.Router, swipeUsecase swipe.SwipeUsecaseInterface, us
 }
 
 func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
-	userIdStr := r.Context().Value("user_id").(string)
-	userID, _ := strconv.Atoi(userIdStr)
+	userIDStr := r.Context().Value("user_id").(string)
+	userID, _ := strconv.Atoi(userIDStr)
 
 	userProfile, err := h.userUsecase.GetUserProfileByUserID(userID)
 	if err != nil {
@@ -46,12 +47,12 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 	if !userProfile.IsPremiumUser {
 		// if !premium, user swipe limited to 10
 		count := h.swipeUsecase.CountUserSwipe(userID)
-		if count >= constant.MAX_SWIPE {
+		if count >= constant.MaxSwipe {
 			utils.RespondWithError(w, http.StatusInternalServerError, "maximum swipe")
 			return
 		}
 
-		limit = constant.MAX_SWIPE - count
+		limit = constant.MaxSwipe - count
 	}
 
 	// load other user profiles up to 10 except visited and like profile
@@ -90,8 +91,8 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
-	userIdStr := r.Context().Value("user_id").(string)
-	userID, _ := strconv.Atoi(userIdStr)
+	userIDStr := r.Context().Value("user_id").(string)
+	userID, _ := strconv.Atoi(userIDStr)
 
 	userProfile, err := h.userUsecase.GetUserProfileByUserID(userID)
 	if err != nil {
@@ -106,13 +107,15 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 	// add counter if user !premium
 	if !userProfile.IsPremiumUser {
 		count := h.swipeUsecase.CountUserSwipe(userID)
-		if count >= constant.MAX_SWIPE {
+		if count >= constant.MaxSwipe {
 			utils.RespondWithError(w, http.StatusInternalServerError, "maximum swipe")
 			return
 		}
 
-		err := h.swipeUsecase.AddUserSwipe(userID)
-		log.Printf("user %v error add counter swipe for user %v: %s \n", userID, otherUserID, err)
+		err = h.swipeUsecase.AddUserSwipe(userID)
+		if err != nil {
+			log.Printf("user %v error add counter swipe for user %v: %s \n", userID, otherUserID, err)
+		}
 	}
 
 	// add appeared profiles into redis
@@ -125,7 +128,7 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 	swipe, err := h.swipeUsecase.GetSwipeMatches(otherUserID, userID)
 
 	var isLike *bool
-	if swipeAction == constant.SWIPE_LIKE {
+	if swipeAction == constant.SwipeLike {
 		like := true
 		isLike = &like
 	}
@@ -135,7 +138,7 @@ func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		// insert new data, swipe == skip not save to database, profile will appear on the next time
-		if swipeAction == constant.SWIPE_LIKE {
+		if swipeAction == constant.SwipeLike {
 			err := h.swipeUsecase.UpsertSwipeMatches(userID, otherUserID, isLike, nil, 0)
 			log.Printf("error save swipe matches %v %s %v: %s \n", userID, swipeAction, otherUserID, err)
 		}

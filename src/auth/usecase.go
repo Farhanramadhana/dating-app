@@ -4,7 +4,7 @@ import (
 	"dating-app/model/dto"
 )
 
-type AuthUsecaseInterface interface {
+type UsecaseInterface interface {
 	SignUp(dto.Signup) error
 	Signin(dto.Signin) (string, error)
 }

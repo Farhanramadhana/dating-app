@@ -14,10 +14,10 @@ import (
 )
 
 type UserHandler struct {
-	userUsecase user.UserUsecaseInterface
+	userUsecase user.UsecaseInterface
 }
 
-func NewUserHandler(r *mux.Router, userUsecase user.UserUsecaseInterface) {
+func NewUserHandler(r *mux.Router, userUsecase user.UsecaseInterface) {
 	handler := UserHandler{userUsecase}
 
 	r.Handle("/user/profile", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.UpsertUserProfile))).Methods("POST")
