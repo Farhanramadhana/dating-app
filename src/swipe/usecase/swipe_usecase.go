@@ -24,32 +24,27 @@ func NewSwipeUsecase(
 	return &SwipeUsecase{swipeRepository, redis}
 }
 
-func (u *SwipeUsecase) Swipe(userID int) error {
-	// add showed profile into redis
-
-	// query to database user_profile, except user_id not in redis, randomize the user
-
-	return nil
-}
-
 func (u *SwipeUsecase) CountUserSwipe(userID int) int {
-	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID))
+	today := time.Now().Format(constant.YYYYMMDD)
+	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID, today))
 	count, _ := strconv.Atoi(countStr)
 
 	return count
 }
 
 func (u *SwipeUsecase) AddUserSwipe(userID int) error {
-	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID))
+	today := time.Now().Format(constant.YYYYMMDD)
+	countStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID, today))
 	count, _ := strconv.Atoi(countStr)
 	count++
 
-	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID), count)
+	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserSwipeKey, userID, today), count)
 	return err
 }
 
 func (u *SwipeUsecase) AddProfileAppeared(userID int, otherUserID int) error {
-	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID))
+	today := time.Now().Format(constant.YYYYMMDD)
+	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID, today))
 
 	var profileIDs []string
 	if profilesStr != "" {
@@ -60,14 +55,15 @@ func (u *SwipeUsecase) AddProfileAppeared(userID int, otherUserID int) error {
 
 	value := strings.Join(profileIDs, ",")
 
-	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID), value)
+	err := u.redis.RedisSet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID, today), value)
 
 	return err
 }
 
 func (u *SwipeUsecase) GetProfileAppeared(userID int) []int {
 	var profileIDs []int
-	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID))
+	today := time.Now().Format(constant.YYYYMMDD)
+	profilesStr := u.redis.RedisGet(context.Background(), fmt.Sprintf(constant.UserProfileAppeared, userID, today))
 
 	if profilesStr != "" {
 		profiles := strings.Split(profilesStr, ",")
