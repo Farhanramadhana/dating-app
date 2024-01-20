@@ -38,10 +38,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		type key string
-		const userIDKey key = "user_id"
-
-		r = r.WithContext(context.WithValue(r.Context(), userIDKey, claims.Subject))
+		r = r.WithContext(context.WithValue(r.Context(), "user_id", claims.Subject))
 		next.ServeHTTP(w, r)
 	})
 }
