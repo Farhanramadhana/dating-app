@@ -14,9 +14,9 @@ This is a simple Dating app service written on Golang and set up to run with Doc
    > git clone https://github.com/Farhanramadhana/dating-app.git
    > cd dating-app
 2. copy .env.example values to .env
-3. Run docker-compose build
-4. Run docker-compose up 
+3. RUN docker compose up -d --build
    The application should now be accessible at http://localhost:port
+4. Execute migration.sql to create database table
 
 ##Run Without Docker
 If you want to work on the application locally without using Docker, you can run the golang command directly:
