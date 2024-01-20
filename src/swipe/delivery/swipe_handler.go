@@ -5,12 +5,17 @@ import (
 	"dating-app/app/utils"
 	"dating-app/model/constant"
 	"dating-app/model/dto"
+	"errors"
+	"strconv"
 
 	"dating-app/src/swipe"
 	"dating-app/src/user"
 	"net/http"
 
+	"log"
+
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 type SwipeHandler struct {
@@ -22,11 +27,12 @@ func NewSwipeHandler(r *mux.Router, swipeUsecase swipe.SwipeUsecaseInterface, us
 	handler := SwipeHandler{swipeUsecase, userUsecase}
 
 	r.Handle("/show", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Show))).Methods("GET")
-	r.Handle("/swipe", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Swipe))).Methods("GET")
+	r.Handle("/swipe", middleware.AuthenticateMiddleware(http.HandlerFunc(handler.Swipe))).Methods("POST")
 }
 
 func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+	userIdStr := r.Context().Value("user_id").(string)
+	userID, _ := strconv.Atoi(userIdStr)
 
 	userProfile, err := h.userUsecase.GetUserProfileByUserID(userID)
 	if err != nil {
@@ -39,7 +45,7 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 	if !userProfile.IsPremiumUser {
 		// if !premium, user swipe limited to 10
 		count := h.swipeUsecase.CountUserSwipe(userID)
-		if count == constant.MAX_SWIPE {
+		if count >= constant.MAX_SWIPE {
 			utils.RespondWithError(w, http.StatusInternalServerError, "maximum swipe")
 			return
 		}
@@ -49,7 +55,7 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 
 	// load other user profiles up to 10, and set to redis
 	userProfilesID := h.swipeUsecase.GetProfileAppeared(userID)
-
+	userProfilesID = append(userProfilesID, userID)
 	userProfiles, _ := h.userUsecase.GetUserProfilesNotIn(userProfilesID, limit)
 	var response []dto.UserProfile
 	for _, v := range userProfiles {
@@ -64,17 +70,62 @@ func (h *SwipeHandler) Show(w http.ResponseWriter, r *http.Request) {
 		response = append(response, profile)
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, userProfiles)
+	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
 func (h *SwipeHandler) Swipe(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+	userIdStr := r.Context().Value("user_id").(string)
+	userID, _ := strconv.Atoi(userIdStr)
 
-	// get profile appeared from redis
-	// profileIDs := h.swipeUsecase.GetProfileAppeared(userID)
+	userProfile, err := h.userUsecase.GetUserProfileByUserID(userID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-	// load userProfiles without previous appeared profiles
+	// get swipe action
+	swipeAction := r.URL.Query().Get("action")
+	otherUserID, _ := strconv.Atoi(r.URL.Query().Get("other_user_id"))
+
+	var isLike *bool
+	if swipeAction == constant.SWIPE_LIKE {
+		like := true
+		isLike = &like
+	}
+
+	// add counter if user !premium
+	if !userProfile.IsPremiumUser {
+		count := h.swipeUsecase.CountUserSwipe(userID)
+		if count >= constant.MAX_SWIPE {
+			utils.RespondWithError(w, http.StatusInternalServerError, "maximum swipe")
+			return
+		}
+
+		err := h.swipeUsecase.AddUserSwipe(userID)
+		log.Println("user %v error add counter swipe for user %v: %s", userID, otherUserID, err)
+	}
 
 	// add appeared profiles into redis
-	h.swipeUsecase.AddProfileAppeared(userID, 0)
+	err = h.swipeUsecase.AddProfileAppeared(userID, otherUserID)
+	if err != nil {
+		log.Println("user %v error add profile appeared for user %v: %s", userID, otherUserID, err)
+	}
+
+	// get from database matcher as second person
+	swipe, err := h.swipeUsecase.GetSwipeMatches(otherUserID, userID)
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	} else if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		// insert new data
+		err := h.swipeUsecase.UpsertSwipeMatches(userID, otherUserID, isLike, nil, 0)
+		log.Println("error save swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+	} else {
+		// data swipe exist, update
+		err := h.swipeUsecase.UpsertSwipeMatches(swipe.FirstUserID, swipe.SecondUserID, swipe.IsFirstUserLike, isLike, swipe.ID)
+		log.Println("error update swipe matches %v %s %v: %s", userID, swipeAction, otherUserID, err)
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"status": "success"})
 }

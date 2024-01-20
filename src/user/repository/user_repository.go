@@ -38,7 +38,7 @@ func (r *UserRepository) GetUserProfileByUserID(userID int) (database.UserProfil
 
 func (r *UserRepository) GetUserProfilesNotIn(userIDs []int, limit int) ([]database.UserProfile, error) {
 	var userProfiles []database.UserProfile
-	tx := r.db.Not(map[string]interface{}{"user_id": userIDs}).Limit(limit).Find(&userProfiles)
+	tx := r.db.Not(map[string]interface{}{"user_id": userIDs}).Order("RANDOM()").Limit(limit).Find(&userProfiles)
 
 	return userProfiles, tx.Error
 }

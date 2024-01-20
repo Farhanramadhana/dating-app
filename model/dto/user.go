@@ -1,7 +1,7 @@
 package dto
 
 type UserProfile struct {
-	UserID           int    `json:"-`
+	UserID           int    `json:"user_id,omitempty"`
 	Gender           string `json:"gender"`
 	Birthdate        string `json:"birthdate"`
 	GenderPreference string `json:"gender_preference"`
@@ -9,6 +9,6 @@ type UserProfile struct {
 }
 
 type UserImage struct {
-	UserID   int    `json:"-`
+	UserID   int    `json:"user_id,omitempty"`
 	ImageURL string `json:"image_url"`
 }
