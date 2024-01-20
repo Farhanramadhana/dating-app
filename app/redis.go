@@ -15,7 +15,6 @@ type redisClient struct {
 type Redis interface {
 	RedisSet(ctx context.Context, key string, value any) error
 	RedisGet(ctx context.Context, key string) string
-	RedisAppend(ctx context.Context, key string, value string) error
 }
 
 func NewRedisClient(host, port, password string) Redis {
@@ -39,9 +38,4 @@ func (r *redisClient) RedisSet(ctx context.Context, key string, value any) error
 func (r *redisClient) RedisGet(ctx context.Context, key string) string {
 	v := r.client.Get(ctx, key)
 	return v.Val()
-}
-
-func (r *redisClient) RedisAppend(ctx context.Context, key string, value string) error {
-	v := r.client.Append(ctx, key, value)
-	return v.Err()
 }
