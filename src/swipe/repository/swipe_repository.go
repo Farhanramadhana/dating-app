@@ -1,17 +1,15 @@
 package repository
 
 import (
-	"dating-app/app"
 	"dating-app/src/swipe"
 
 	"gorm.io/gorm"
 )
 
 type SwipeRepository struct {
-	db    *gorm.DB
-	redis app.Redis
+	db *gorm.DB
 }
 
-func NewSwipeRepository(db *gorm.DB, redis app.Redis) swipe.SwipeRepositoryInterface {
-	return &SwipeRepository{db, redis}
+func NewSwipeRepository(db *gorm.DB) swipe.SwipeRepositoryInterface {
+	return &SwipeRepository{db}
 }
