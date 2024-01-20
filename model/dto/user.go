@@ -9,6 +9,6 @@ type UserProfile struct {
 }
 
 type UserImage struct {
-	UserID   string `json:"-`
+	UserID   int    `json:"-`
 	ImageURL string `json:"image_url"`
 }

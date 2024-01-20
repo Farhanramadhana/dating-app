@@ -15,7 +15,7 @@ type UserProfile struct {
 
 type UserImage struct {
 	ID        int
-	UserID    string
+	UserID    int
 	ImageURL  string
 	CreatedAt time.Time
 	UpdatedAt time.Time

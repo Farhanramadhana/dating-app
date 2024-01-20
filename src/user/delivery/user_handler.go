@@ -6,6 +6,7 @@ import (
 	user "dating-app/src/user"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"dating-app/app/middleware"
 
@@ -30,8 +31,8 @@ func (h *UserHandler) UpsertUserProfile(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	userID := r.Context().Value("user_id").(int)
-	userDto.UserID = userID
+	userID := r.Context().Value("user_id").(string)
+	userDto.UserID, _ = strconv.Atoi(userID)
 	err := h.userUsecase.UpsertUserProfile(userDto)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
@@ -49,7 +50,7 @@ func (h *UserHandler) AddUserImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.Context().Value("user_id").(string)
-	userDto.UserID = userID
+	userDto.UserID, _ = strconv.Atoi(userID)
 	err := h.userUsecase.AddUserImage(userDto)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
