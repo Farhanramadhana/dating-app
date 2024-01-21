@@ -1,0 +1,242 @@
+{
+	"info": {
+		"_postman_id": "7ec2838b-eb71-4f98-b483-ca759ec974ed",
+		"name": "dating apps",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2036381"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "signup/register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"farhan@dealls.com\",\n    \"password\": \"dealls\",\n    \"firstname\": \"farhan\",\n    \"lastname\": \"ramadhana\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"farhan@dealls.com\",\n    \"password\": \"dealls\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user profile",
+			"item": [
+				{
+					"name": "update user profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU3NDk3NDEsImlhdCI6MTcwNTc0NjE0MSwic3ViIjoiMTAxMSJ9.UdX8d_McMnBjdS3Api-cTVar0Fh7Kzq-h3IlFbSmjD4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gender\": \"male\",\n    \"birthdate\": \"1997-01-16\",\n    \"gender_preference\": \"female\",\n    \"is_premium_user\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add user image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU3Mjg5ODUsImlhdCI6MTcwNTcyNTM4NSwic3ViIjoiMSJ9.mh4FpXeHy6nZCXYhVl4srzQYw2o3LGy8NOVuMbsZsAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"image_url\": \"url image 5\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "swipe",
+			"item": [
+				{
+					"name": "swipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU3NTE2MzAsImlhdCI6MTcwNTc0ODAzMCwic3ViIjoiMSJ9.eSpiSQ6hl5HdKYsionUDdBjvrqH_40_qq4rja1adlYw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swipe?action=skip&other_user_id=1001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swipe"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "skip"
+								},
+								{
+									"key": "other_user_id",
+									"value": "1001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU3NTE2MzAsImlhdCI6MTcwNTc0ODAzMCwic3ViIjoiMSJ9.eSpiSQ6hl5HdKYsionUDdBjvrqH_40_qq4rja1adlYw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/show",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"show"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
